@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Landing Finance — Weekly Updates</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --navy: #1B2A4A;
+    --slate: #2E4057;
+    --blue: #4A6FA5;
+    --light-blue: #D6E4F0;
+    --pale-blue: #EBF3FB;
+    --gold: #C9A84C;
+    --green: #2E7D32;
+    --green-light: #E8F5E9;
+    --red: #C62828;
+    --red-light: #FFEBEE;
+    --orange: #E65100;
+    --orange-light: #FFF3E0;
+    --grey: #546E7A;
+    --grey-light: #ECEFF1;
+    --white: #FFFFFF;
+    --charcoal: #263238;
+    --border: #B0BEC5;
+    --radius: 8px;
+    --radius-lg: 12px;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #F5F7FA;
+    color: var(--charcoal);
+    min-height: 100vh;
+  }
+  .header {
+    background: var(--navy);
+    padding: 0 2rem;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .header-brand { display: flex; align-items: center; gap: 10px; }
+  .header-logo {
+    width: 32px; height: 32px; border-radius: 6px;
+    background: var(--gold); display: flex; align-items: center;
+    justify-content: center; font-weight: 700; font-size: 14px; color: var(--navy);
+  }
+  .header-title { font-size: 15px; font-weight: 600; color: white; }
+  .header-sub { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 1px; }
+  .header-week { font-size: 12px; color: var(--gold); }
+  .container { max-width: 720px; margin: 0 auto; padding: 2rem 1rem; }
+
+  /* Member selector */
+  .member-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 1.5rem; }
+  .member-card {
+    background: white; border: 1.5px solid var(--border); border-radius: var(--radius-lg);
+    padding: 1rem; cursor: pointer; transition: all 0.15s; text-align: center;
+  }
+  .member-card:hover { border-color: var(--blue); }
+  .member-card.active { border-color: var(--navy); background: var(--pale-blue); }
+  .member-avatar {
+    width: 44px; height: 44px; border-radius: 50%; display: flex;
+    align-items: center; justify-content: center; font-size: 14px;
+    font-weight: 600; margin: 0 auto 8px;
+  }
+  .av-j { background: #D6E4F0; color: #1B2A4A; }
+  .av-c { background: #E8F5E9; color: #1B5E20; }
+  .av-d { background: #EDE7F6; color: #4527A0; }
+  .member-name { font-size: 13px; font-weight: 600; color: var(--charcoal); }
+  .member-role { font-size: 11px; color: var(--grey); margin-top: 2px; }
+  .submitted-badge {
+    display: inline-flex; align-items: center; gap: 3px; margin-top: 6px;
+    font-size: 10px; color: var(--green); background: var(--green-light);
+    border-radius: 20px; padding: 2px 8px;
+  }
+
+  /* Type toggle */
+  .type-toggle {
+    display: flex; background: white; border: 1px solid var(--border);
+    border-radius: var(--radius); overflow: hidden; margin-bottom: 1.5rem;
+  }
+  .type-btn {
+    flex: 1; padding: 10px; font-size: 13px; font-weight: 500;
+    background: none; border: none; cursor: pointer; color: var(--grey);
+    transition: all 0.15s; display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .type-btn.active { background: var(--navy); color: white; }
+  .type-btn:not(.active):hover { background: var(--grey-light); }
+
+  /* Form card */
+  .form-card {
+    background: white; border: 1px solid var(--border);
+    border-radius: var(--radius-lg); overflow: hidden;
+  }
+  .form-header {
+    background: var(--navy); padding: 1rem 1.25rem;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .form-header-left { display: flex; align-items: center; gap: 10px; }
+  .form-header h2 { font-size: 14px; font-weight: 600; color: white; }
+  .form-header p { font-size: 11px; color: rgba(255,255,255,0.6); margin-top: 2px; }
+  .form-body { padding: 1.25rem; }
+  .field-group { margin-bottom: 1.25rem; }
+  .field-label {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 600; color: var(--slate);
+    text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px;
+  }
+  .field-prompt { font-size: 12px; color: var(--grey); margin-bottom: 6px; font-style: italic; }
+  .priority-rows { display: flex; flex-direction: column; gap: 8px; }
+  .priority-row { display: flex; align-items: flex-start; gap: 8px; }
+  .priority-num {
+    width: 24px; height: 24px; border-radius: 50%; background: var(--pale-blue);
+    border: 1px solid var(--light-blue); display: flex; align-items: center;
+    justify-content: center; font-size: 11px; font-weight: 600; color: var(--blue);
+    flex-shrink: 0; margin-top: 8px;
+  }
+  textarea {
+    width: 100%; padding: 8px 12px; border: 1px solid var(--border);
+    border-radius: var(--radius); font-size: 13px; font-family: inherit;
+    color: var(--charcoal); background: white; resize: vertical;
+    line-height: 1.5; transition: border-color 0.15s;
+    min-height: 60px;
+  }
+  textarea:focus { outline: none; border-color: var(--blue); }
+  textarea.priority-input { min-height: 52px; flex: 1; }
+  .submit-btn {
+    width: 100%; padding: 12px; background: var(--navy); color: white;
+    border: none; border-radius: var(--radius); font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: background 0.15s; margin-top: 1rem;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .submit-btn:hover { background: var(--slate); }
+  .submit-btn:disabled { background: var(--border); cursor: not-allowed; }
+  .success-banner {
+    background: var(--green-light); border: 1px solid #A5D6A7;
+    border-radius: var(--radius); padding: 12px 16px; margin-top: 1rem;
+    display: none; align-items: center; gap: 8px;
+    font-size: 13px; color: var(--green); font-weight: 500;
+  }
+  .error-banner {
+    background: var(--red-light); border: 1px solid #EF9A9A;
+    border-radius: var(--radius); padding: 12px 16px; margin-top: 1rem;
+    display: none; font-size: 13px; color: var(--red);
+  }
+  .divider { border: none; border-top: 1px solid var(--grey-light); margin: 1.25rem 0; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-brand">
+    <div class="header-logo">L</div>
+    <div>
+      <div class="header-title">Landing Finance</div>
+      <div class="header-sub">Weekly Updates</div>
+    </div>
+  </div>
+  <div class="header-week" id="week-label"></div>
+</div>
+
+<div class="container">
+
+  <div class="member-grid" id="member-grid">
+    <div class="member-card active" onclick="selectMember('jeffrey', this)">
+      <div class="member-avatar av-j">JG</div>
+      <div class="member-name">Jeffrey</div>
+      <div class="member-role">CAO / SVP Finance</div>
+      <div class="submitted-badge" id="badge-jeffrey" style="display:none">✓ Submitted</div>
+    </div>
+    <div class="member-card" onclick="selectMember('carter', this)">
+      <div class="member-avatar av-c">CA</div>
+      <div class="member-name">Carter</div>
+      <div class="member-role">Sr. Financial Analyst</div>
+      <div class="submitted-badge" id="badge-carter" style="display:none">✓ Submitted</div>
+    </div>
+    <div class="member-card" onclick="selectMember('david', this)">
+      <div class="member-avatar av-d">DV</div>
+      <div class="member-name">David</div>
+      <div class="member-role">Sr. BI Analyst</div>
+      <div class="submitted-badge" id="badge-david" style="display:none">✓ Submitted</div>
+    </div>
+  </div>
+
+  <div class="type-toggle">
+    <button class="type-btn active" onclick="selectType('monday', this)">☀ Monday Top-5</button>
+    <button class="type-btn" onclick="selectType('friday', this)">⚑ Friday Recap</button>
+  </div>
+
+  <div class="form-card">
+    <div class="form-header">
+      <div class="form-header-left">
+        <div class="member-avatar av-j" id="form-avatar" style="width:36px;height:36px;font-size:12px;margin:0">JG</div>
+        <div>
+          <h2 id="form-title">Monday Top-5 Priorities</h2>
+          <p id="form-sub">Jeffrey Gleason · CAO / SVP Finance</p>
+        </div>
+      </div>
+    </div>
+    <div class="form-body">
+
+      <!-- Monday form -->
+      <div id="monday-form">
+        <div class="field-group">
+          <div class="field-label">Top 5 priorities this week</div>
+          <div class="field-prompt">These are commitments, not intentions. Be specific about what you will accomplish.</div>
+          <div class="priority-rows">
+            <div class="priority-row"><div class="priority-num">1</div><textarea class="priority-input" id="p1" placeholder="Priority 1..."></textarea></div>
+            <div class="priority-row"><div class="priority-num">2</div><textarea class="priority-input" id="p2" placeholder="Priority 2..."></textarea></div>
+            <div class="priority-row"><div class="priority-num">3</div><textarea class="priority-input" id="p3" placeholder="Priority 3..."></textarea></div>
+            <div class="priority-row"><div class="priority-num">4</div><textarea class="priority-input" id="p4" placeholder="Priority 4..."></textarea></div>
+            <div class="priority-row"><div class="priority-num">5</div><textarea class="priority-input" id="p5" placeholder="Priority 5..."></textarea></div>
+          </div>
+        </div>
+        <hr class="divider">
+        <div class="field-group">
+          <div class="field-label">Heads-up for Joel</div>
+          <div class="field-prompt">Proactive risks, context, or things in motion that aren't captured above.</div>
+          <textarea id="mon-context" placeholder="e.g. AP consultant onboarding starts Tuesday, may shift team capacity mid-week..." style="min-height:72px"></textarea>
+        </div>
+      </div>
+
+      <!-- Friday form -->
+      <div id="friday-form" style="display:none">
+        <div class="field-group">
+          <div class="field-label">What did you actually accomplish?</div>
+          <div class="field-prompt">Honest account — what moved, what didn't. Not a highlight reel.</div>
+          <textarea id="fri-accomplished" placeholder="e.g. Closed 3 of 5 priorities. Revenue recon draft completed..." style="min-height:80px"></textarea>
+        </div>
+        <div class="field-group">
+          <div class="field-label">Blocked or at risk</div>
+          <div class="field-prompt">What needs Joel's attention, a decision, or an unblock before next week?</div>
+          <textarea id="fri-blocked" placeholder="e.g. Fixed asset workflow stalled — waiting on system access from IT..." style="min-height:72px"></textarea>
+        </div>
+        <div class="field-group">
+          <div class="field-label">Carrying into next week</div>
+          <div class="field-prompt">What's moving forward and why?</div>
+          <textarea id="fri-carryover" placeholder="e.g. Close target improvement doc carries — scope was larger than expected..." style="min-height:72px"></textarea>
+        </div>
+        <div class="field-group">
+          <div class="field-label">Ask for Joel</div>
+          <div class="field-prompt">Decisions, approvals, or escalations needed.</div>
+          <textarea id="fri-ask" placeholder="e.g. Need your sign-off on the AP consultant SOW by Monday..." style="min-height:72px"></textarea>
+        </div>
+        <div class="field-group">
+          <div class="field-label">Cross-team heads-up</div>
+          <div class="field-prompt">Anything Accounting / FP&A / BI should know?</div>
+          <textarea id="fri-crossteam" placeholder="Optional..." style="min-height:60px"></textarea>
+        </div>
+      </div>
+
+      <button class="submit-btn" id="submit-btn" onclick="submitUpdate()">
+        Submit Update
+      </button>
+      <div class="success-banner" id="success-banner">
+        ✓ Update submitted. Joel will see this in the CFO dashboard.
+      </div>
+      <div class="error-banner" id="error-banner"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+let currentMember = 'jeffrey';
+let currentType = 'monday';
+
+const members = {
+  jeffrey: { name: 'Jeffrey Gleason', role: 'CAO / SVP Finance', initials: 'JG', av: 'av-j' },
+  carter:  { name: 'Carter',          role: 'Sr. Financial Analyst — FP&A', initials: 'CA', av: 'av-c' },
+  david:   { name: 'David',           role: 'Sr. BI Analyst — BI', initials: 'DV', av: 'av-d' },
+};
+
+function getWeekLabel() {
+  const now = new Date();
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+  const friday = new Date(monday); friday.setDate(monday.getDate() + 4);
+  const fmt = d => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  return `Week of ${fmt(monday)} – ${fmt(friday)}`;
+}
+
+function getWeekKey() {
+  const now = new Date();
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+  return monday.toISOString().split('T')[0];
+}
+
+document.getElementById('week-label').textContent = getWeekLabel();
+
+function selectMember(id, el) {
+  currentMember = id;
+  document.querySelectorAll('.member-card').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  const m = members[id];
+  const av = document.getElementById('form-avatar');
+  av.textContent = m.initials;
+  av.className = `member-avatar ${m.av}`;
+  av.style.cssText = 'width:36px;height:36px;font-size:12px;margin:0';
+  document.getElementById('form-sub').textContent = `${m.name} · ${m.role}`;
+  clearForm();
+}
+
+function selectType(type, el) {
+  currentType = type;
+  document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('monday-form').style.display = type === 'monday' ? 'block' : 'none';
+  document.getElementById('friday-form').style.display = type === 'friday' ? 'block' : 'none';
+  document.getElementById('form-title').textContent = type === 'monday' ? 'Monday Top-5 Priorities' : 'Friday Recap';
+  clearForm();
+}
+
+function clearForm() {
+  ['p1','p2','p3','p4','p5','mon-context','fri-accomplished','fri-blocked','fri-carryover','fri-ask','fri-crossteam'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  document.getElementById('success-banner').style.display = 'none';
+  document.getElementById('error-banner').style.display = 'none';
+}
+
+async function checkSubmissions() {
+  try {
+    const week = getWeekKey();
+    for (const id of ['jeffrey','carter','david']) {
+      for (const type of ['monday','friday']) {
+        const res = await fetch(`/api/get?key=${week}_${id}_${type}`);
+        const data = await res.json();
+        if (data.value) {
+          document.getElementById(`badge-${id}`).style.display = 'inline-flex';
+        }
+      }
+    }
+  } catch(e) {}
+}
+
+async function submitUpdate() {
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Submitting...';
+
+  let payload = { member: currentMember, type: currentType, week: getWeekKey(), submittedAt: new Date().toISOString() };
+
+  if (currentType === 'monday') {
+    payload.priorities = [1,2,3,4,5].map(i => document.getElementById(`p${i}`).value.trim());
+    if (!payload.priorities[0]) {
+      showError('Please enter at least Priority 1 before submitting.');
+      btn.disabled = false; btn.textContent = 'Submit Update'; return;
+    }
+    payload.context = document.getElementById('mon-context').value.trim();
+  } else {
+    payload.accomplished = document.getElementById('fri-accomplished').value.trim();
+    if (!payload.accomplished) {
+      showError('Please fill in what you accomplished before submitting.');
+      btn.disabled = false; btn.textContent = 'Submit Update'; return;
+    }
+    payload.blocked    = document.getElementById('fri-blocked').value.trim();
+    payload.carryover  = document.getElementById('fri-carryover').value.trim();
+    payload.ask        = document.getElementById('fri-ask').value.trim();
+    payload.crossteam  = document.getElementById('fri-crossteam').value.trim();
+  }
+
+  try {
+    const res = await fetch('/api/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.ok) {
+      document.getElementById('success-banner').style.display = 'flex';
+      document.getElementById(`badge-${currentMember}`).style.display = 'inline-flex';
+      clearForm();
+    } else {
+      showError('Submission failed. Please try again or message Joel directly.');
+    }
+  } catch(e) {
+    showError('Could not reach server. Check your connection and try again.');
+  }
+
+  btn.disabled = false; btn.textContent = 'Submit Update';
+}
+
+function showError(msg) {
+  const el = document.getElementById('error-banner');
+  el.textContent = msg; el.style.display = 'block';
+}
+
+checkSubmissions();
+</script>
+</body>
+</html>

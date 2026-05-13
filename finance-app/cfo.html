@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CFO Dashboard — Landing Finance</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --navy: #1B2A4A; --slate: #2E4057; --blue: #4A6FA5;
+    --light-blue: #D6E4F0; --pale-blue: #EBF3FB; --gold: #C9A84C;
+    --green: #2E7D32; --green-light: #E8F5E9;
+    --red: #C62828; --red-light: #FFEBEE;
+    --orange: #E65100; --orange-light: #FFF3E0;
+    --grey: #546E7A; --grey-light: #ECEFF1; --white: #FFFFFF; --charcoal: #263238;
+    --border: #B0BEC5; --radius: 8px; --radius-lg: 12px;
+  }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F5F7FA; color: var(--charcoal); min-height: 100vh; }
+
+  /* Login */
+  .login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+  .login-card { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 2rem; width: 100%; max-width: 360px; }
+  .login-logo { width: 48px; height: 48px; border-radius: 10px; background: var(--navy); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 20px; color: var(--gold); margin: 0 auto 1.5rem; }
+  .login-title { font-size: 18px; font-weight: 700; color: var(--navy); text-align: center; margin-bottom: 4px; }
+  .login-sub { font-size: 13px; color: var(--grey); text-align: center; margin-bottom: 1.5rem; }
+  .login-card input { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 14px; font-family: inherit; margin-bottom: 12px; }
+  .login-card input:focus { outline: none; border-color: var(--blue); }
+  .login-btn { width: 100%; padding: 11px; background: var(--navy); color: white; border: none; border-radius: var(--radius); font-size: 14px; font-weight: 600; cursor: pointer; }
+  .login-btn:hover { background: var(--slate); }
+  .login-error { font-size: 12px; color: var(--red); margin-top: 8px; display: none; }
+
+  /* Header */
+  .header { background: var(--navy); padding: 0 2rem; height: 56px; display: flex; align-items: center; justify-content: space-between; }
+  .header-brand { display: flex; align-items: center; gap: 10px; }
+  .header-logo { width: 32px; height: 32px; border-radius: 6px; background: var(--gold); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; color: var(--navy); }
+  .header-title { font-size: 15px; font-weight: 600; color: white; }
+  .header-sub { font-size: 12px; color: rgba(255,255,255,0.5); }
+  .header-right { display: flex; align-items: center; gap: 12px; }
+  .week-nav { display: flex; align-items: center; gap: 8px; }
+  .week-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 4px 10px; border-radius: var(--radius); font-size: 12px; cursor: pointer; }
+  .week-btn:hover { background: rgba(255,255,255,0.2); }
+  .week-label { font-size: 12px; color: var(--gold); min-width: 160px; text-align: center; }
+
+  /* Dashboard */
+  .container { max-width: 900px; margin: 0 auto; padding: 1.5rem 1rem; }
+  .status-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 1.5rem; }
+  .status-card { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1rem 1.25rem; }
+  .status-name { font-size: 13px; font-weight: 600; color: var(--navy); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+  .status-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+  .pill { font-size: 11px; padding: 3px 8px; border-radius: 20px; font-weight: 500; }
+  .pill-done { background: var(--green-light); color: var(--green); }
+  .pill-pending { background: var(--grey-light); color: var(--grey); }
+  .avatar-sm { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; }
+  .av-j { background: #D6E4F0; color: #1B2A4A; }
+  .av-c { background: #E8F5E9; color: #1B5E20; }
+  .av-d { background: #EDE7F6; color: #4527A0; }
+
+  /* AI Summary */
+  .ai-section { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); margin-bottom: 1.5rem; overflow: hidden; }
+  .ai-header { padding: 1rem 1.25rem; border-bottom: 1px solid var(--grey-light); display: flex; align-items: center; justify-content: space-between; }
+  .ai-header-left { display: flex; align-items: center; gap: 8px; }
+  .ai-title { font-size: 14px; font-weight: 600; color: var(--navy); }
+  .ai-btn { background: var(--navy); color: white; border: none; padding: 7px 16px; border-radius: var(--radius); font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+  .ai-btn:hover { background: var(--slate); }
+  .ai-btn:disabled { background: var(--border); cursor: not-allowed; }
+  .ai-body { padding: 1.25rem; min-height: 80px; }
+  .ai-output { font-size: 13px; line-height: 1.7; color: var(--charcoal); white-space: pre-wrap; }
+  .ai-placeholder { font-size: 13px; color: var(--grey); font-style: italic; }
+
+  /* Submission cards */
+  .submissions { display: flex; flex-direction: column; gap: 1rem; }
+  .sub-card { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+  .sub-header { padding: 1rem 1.25rem; border-bottom: 1px solid var(--grey-light); display: flex; align-items: center; justify-content: space-between; }
+  .sub-header-left { display: flex; align-items: center; gap: 10px; }
+  .sub-person { font-size: 14px; font-weight: 600; color: var(--navy); }
+  .sub-role { font-size: 11px; color: var(--grey); margin-top: 1px; }
+  .sub-tabs { display: flex; gap: 6px; }
+  .sub-tab { font-size: 11px; padding: 4px 10px; border-radius: 20px; border: 1px solid var(--border); background: none; cursor: pointer; color: var(--grey); }
+  .sub-tab.active { background: var(--pale-blue); color: var(--navy); border-color: var(--light-blue); font-weight: 600; }
+  .sub-body { padding: 1.25rem; }
+  .sub-section { margin-bottom: 1rem; }
+  .sub-section:last-child { margin-bottom: 0; }
+  .sub-section-title { font-size: 11px; font-weight: 600; color: var(--grey); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px; }
+  .sub-content { font-size: 13px; color: var(--charcoal); line-height: 1.6; background: var(--grey-light); border-radius: var(--radius); padding: 8px 12px; }
+  .priority-list { list-style: none; }
+  .priority-list li { display: flex; gap: 10px; font-size: 13px; color: var(--charcoal); padding: 5px 0; border-bottom: 1px solid var(--grey-light); line-height: 1.5; }
+  .priority-list li:last-child { border-bottom: none; }
+  .priority-list .num { font-size: 11px; color: var(--blue); font-weight: 600; width: 16px; flex-shrink: 0; margin-top: 2px; }
+  .empty-state { font-size: 13px; color: var(--grey); font-style: italic; padding: 8px 0; }
+  .highlight-red { background: var(--red-light); border-radius: var(--radius); padding: 8px 12px; font-size: 13px; color: var(--charcoal); line-height: 1.6; border-left: 3px solid var(--red); }
+  .highlight-gold { background: #FDF3DC; border-radius: var(--radius); padding: 8px 12px; font-size: 13px; color: var(--charcoal); line-height: 1.6; border-left: 3px solid var(--gold); }
+
+  /* CFO Notes */
+  .notes-section { border-top: 1px solid var(--grey-light); padding: 1rem 1.25rem; background: #FAFBFC; }
+  .notes-label { font-size: 11px; font-weight: 600; color: var(--grey); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px; }
+  .notes-section textarea { min-height: 56px; font-size: 12px; padding: 8px 10px; }
+  .notes-save { font-size: 11px; color: var(--green); margin-top: 4px; display: none; }
+</style>
+</head>
+<body>
+
+<!-- Login screen -->
+<div class="login-wrap" id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">L</div>
+    <div class="login-title">CFO Dashboard</div>
+    <div class="login-sub">Landing Finance — Weekly Updates</div>
+    <input type="password" id="pw-input" placeholder="Enter your password" onkeydown="if(event.key==='Enter')login()">
+    <button class="login-btn" onclick="login()">Sign In</button>
+    <div class="login-error" id="login-error">Incorrect password. Try again.</div>
+  </div>
+</div>
+
+<!-- Dashboard -->
+<div id="dashboard" style="display:none">
+  <div class="header">
+    <div class="header-brand">
+      <div class="header-logo">L</div>
+      <div>
+        <div class="header-title">CFO Dashboard</div>
+        <div class="header-sub">Weekly Updates — Joel's View</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="week-nav">
+        <button class="week-btn" onclick="changeWeek(-1)">&#8249;</button>
+        <div class="week-label" id="week-label-dash">—</div>
+        <button class="week-btn" onclick="changeWeek(1)">&#8250;</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <!-- Status bar -->
+    <div class="status-bar" id="status-bar"></div>
+
+    <!-- AI Summary -->
+    <div class="ai-section">
+      <div class="ai-header">
+        <div class="ai-header-left">
+          <div class="ai-title">✦ Weekly org summary</div>
+        </div>
+        <button class="ai-btn" id="ai-btn" onclick="generateSummary()">Generate AI summary</button>
+      </div>
+      <div class="ai-body">
+        <div class="ai-placeholder" id="ai-placeholder">Hit "Generate AI summary" to get a CFO-level synthesis of all three submissions — wins, risks, patterns, and recommended actions.</div>
+        <div class="ai-output" id="ai-output" style="display:none"></div>
+      </div>
+    </div>
+
+    <!-- Submissions -->
+    <div class="submissions" id="submissions"></div>
+
+  </div>
+</div>
+
+<script>
+const CFO_PASSWORD = 'landing2026';
+const members = {
+  jeffrey: { name: 'Jeffrey Gleason', role: 'CAO / SVP Finance — Accounting', initials: 'JG', av: 'av-j' },
+  carter:  { name: 'Carter',          role: 'Sr. Financial Analyst — FP&A',    initials: 'CA', av: 'av-c' },
+  david:   { name: 'David',           role: 'Sr. BI Analyst — Business Intelligence', initials: 'DV', av: 'av-d' },
+};
+
+let weekOffset = 0;
+let allData = {};
+
+function getWeekMonday(offset = 0) {
+  const now = new Date();
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - ((now.getDay() + 6) % 7) + offset * 7);
+  monday.setHours(0,0,0,0);
+  return monday;
+}
+
+function getWeekKey(offset = 0) {
+  return getWeekMonday(offset).toISOString().split('T')[0];
+}
+
+function getWeekLabel(offset = 0) {
+  const monday = getWeekMonday(offset);
+  const friday = new Date(monday); friday.setDate(monday.getDate() + 4);
+  const fmt = d => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  return `Week of ${fmt(monday)} – ${fmt(friday)}`;
+}
+
+function login() {
+  const pw = document.getElementById('pw-input').value;
+  if (pw === CFO_PASSWORD) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    loadWeek();
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+  }
+}
+
+function changeWeek(dir) {
+  weekOffset += dir;
+  document.getElementById('ai-output').style.display = 'none';
+  document.getElementById('ai-placeholder').style.display = 'block';
+  document.getElementById('ai-btn').disabled = false;
+  document.getElementById('ai-btn').textContent = 'Generate AI summary';
+  loadWeek();
+}
+
+async function loadWeek() {
+  document.getElementById('week-label-dash').textContent = getWeekLabel(weekOffset);
+  allData = {};
+  const week = getWeekKey(weekOffset);
+  for (const id of ['jeffrey','carter','david']) {
+    for (const type of ['monday','friday']) {
+      try {
+        const res = await fetch(`/api/get?key=${week}_${id}_${type}`);
+        const data = await res.json();
+        if (data.value) allData[`${id}_${type}`] = JSON.parse(data.value);
+      } catch(e) {}
+    }
+    // Load CFO notes
+    try {
+      const res = await fetch(`/api/get?key=notes_${week}_${id}`);
+      const data = await res.json();
+      if (data.value) allData[`notes_${id}`] = data.value;
+    } catch(e) {}
+  }
+  renderStatusBar();
+  renderSubmissions();
+}
+
+function renderStatusBar() {
+  const bar = document.getElementById('status-bar');
+  bar.innerHTML = '';
+  for (const [id, m] of Object.entries(members)) {
+    const hasMon = !!allData[`${id}_monday`];
+    const hasFri = !!allData[`${id}_friday`];
+    bar.innerHTML += `
+      <div class="status-card">
+        <div class="status-name">
+          <div class="avatar-sm ${m.av}">${m.initials}</div>
+          ${m.name.split(' ')[0]}
+        </div>
+        <div class="status-pills">
+          <span class="pill ${hasMon ? 'pill-done' : 'pill-pending'}">${hasMon ? '✓ Mon submitted' : '○ Mon pending'}</span>
+          <span class="pill ${hasFri ? 'pill-done' : 'pill-pending'}">${hasFri ? '✓ Fri submitted' : '○ Fri pending'}</span>
+        </div>
+      </div>`;
+  }
+}
+
+function renderSubmissions() {
+  const container = document.getElementById('submissions');
+  container.innerHTML = '';
+  for (const [id, m] of Object.entries(members)) {
+    const monData = allData[`${id}_monday`];
+    const friData = allData[`${id}_friday`];
+    const notes   = allData[`notes_${id}`] || '';
+
+    let monHTML = '';
+    if (monData) {
+      const priorities = (monData.priorities || []).filter(p => p.trim());
+      monHTML = `
+        <div class="sub-section">
+          <div class="sub-section-title">Top 5 priorities</div>
+          <ul class="priority-list">${priorities.map((p,i) => `<li><span class="num">${i+1}.</span>${p}</li>`).join('')}</ul>
+        </div>
+        ${monData.context ? `<div class="sub-section"><div class="sub-section-title">Heads-up for Joel</div><div class="highlight-gold">${monData.context}</div></div>` : ''}`;
+    } else {
+      monHTML = '<div class="empty-state">Monday update not yet submitted.</div>';
+    }
+
+    let friHTML = '';
+    if (friData) {
+      const fields = [
+        ['Accomplished this week', friData.accomplished, false],
+        ['Blocked / at risk', friData.blocked, true],
+        ['Carrying into next week', friData.carryover, false],
+        ['Ask for Joel', friData.ask, true],
+        ['Cross-team heads-up', friData.crossteam, false],
+      ];
+      friHTML = fields.filter(([,v]) => v).map(([label, val, isRed]) =>
+        `<div class="sub-section"><div class="sub-section-title">${label}</div><div class="${isRed ? 'highlight-red' : 'sub-content'}">${val}</div></div>`
+      ).join('');
+      if (!friHTML) friHTML = '<div class="empty-state">No content submitted.</div>';
+    } else {
+      friHTML = '<div class="empty-state">Friday recap not yet submitted.</div>';
+    }
+
+    const week = getWeekKey(weekOffset);
+    container.innerHTML += `
+      <div class="sub-card">
+        <div class="sub-header">
+          <div class="sub-header-left">
+            <div class="avatar-sm ${m.av}" style="width:36px;height:36px;font-size:12px">${m.initials}</div>
+            <div>
+              <div class="sub-person">${m.name}</div>
+              <div class="sub-role">${m.role}</div>
+            </div>
+          </div>
+          <div class="sub-tabs">
+            <button class="sub-tab active" onclick="switchSubTab('${id}','monday',this)">Monday</button>
+            <button class="sub-tab" onclick="switchSubTab('${id}','friday',this)">Friday</button>
+          </div>
+        </div>
+        <div class="sub-body" id="subbody-${id}">
+          <div id="subcontent-${id}-monday">${monHTML}</div>
+          <div id="subcontent-${id}-friday" style="display:none">${friHTML}</div>
+        </div>
+        <div class="notes-section">
+          <div class="notes-label">Joel's notes</div>
+          <textarea id="notes-${id}" placeholder="Add your notes, reactions, or follow-up items here..." onblur="saveNotes('${id}','${week}')">${notes}</textarea>
+          <div class="notes-save" id="notes-saved-${id}">✓ Saved</div>
+        </div>
+      </div>`;
+  }
+}
+
+function switchSubTab(personId, type, btn) {
+  btn.closest('.sub-card').querySelectorAll('.sub-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  ['monday','friday'].forEach(t => {
+    document.getElementById(`subcontent-${personId}-${t}`).style.display = t === type ? 'block' : 'none';
+  });
+}
+
+async function saveNotes(personId, week) {
+  const val = document.getElementById(`notes-${personId}`).value;
+  allData[`notes_${personId}`] = val;
+  try {
+    await fetch('/api/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ _isNote: true, key: `notes_${week}_${personId}`, value: val })
+    });
+    const saved = document.getElementById(`notes-saved-${personId}`);
+    saved.style.display = 'block';
+    setTimeout(() => saved.style.display = 'none', 2000);
+  } catch(e) {}
+}
+
+async function generateSummary() {
+  const btn = document.getElementById('ai-btn');
+  btn.disabled = true; btn.textContent = 'Generating...';
+  document.getElementById('ai-placeholder').style.display = 'none';
+  document.getElementById('ai-output').style.display = 'block';
+  document.getElementById('ai-output').textContent = '...';
+
+  let context = `You are acting as a chief of staff to Joel, the CFO of Landing (a high-growth PropTech company). Synthesize the weekly updates from Joel's three direct reports into a tight executive summary.\n\nWeek: ${getWeekLabel(weekOffset)}\n\n`;
+
+  for (const [id, m] of Object.entries(members)) {
+    const md = allData[`${id}_monday`];
+    const fd = allData[`${id}_friday`];
+    context += `--- ${m.name} (${m.role}) ---\n`;
+    if (md) {
+      const p = (md.priorities || []).filter(p=>p.trim());
+      context += `Monday priorities:\n${p.map((p,i)=>`${i+1}. ${p}`).join('\n')}\n`;
+      if (md.context) context += `Heads-up: ${md.context}\n`;
+    } else context += `Monday: not submitted\n`;
+    if (fd) {
+      if (fd.accomplished) context += `Accomplished: ${fd.accomplished}\n`;
+      if (fd.blocked)      context += `Blocked/at risk: ${fd.blocked}\n`;
+      if (fd.carryover)    context += `Carryover: ${fd.carryover}\n`;
+      if (fd.ask)          context += `Ask for Joel: ${fd.ask}\n`;
+    } else context += `Friday: not submitted\n`;
+    context += '\n';
+  }
+
+  context += `\nWrite a tight CFO-level summary. Plain text, no markdown headers or bullets. Cover:\n1) Key wins and progress across the org this week\n2) Top risks and blockers needing Joel's attention (be specific)\n3) Cross-team patterns or themes\n4) Recommended actions for Joel next week\n\nBe direct, specific, and brief. This is for an operator, not a board deck. Max 250 words.`;
+
+  try {
+    const res = await fetch('/api/ai-summary', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt: context })
+    });
+    const data = await res.json();
+    document.getElementById('ai-output').textContent = data.summary || 'Unable to generate summary.';
+  } catch(e) {
+    document.getElementById('ai-output').textContent = 'Could not generate summary. Try again.';
+  }
+
+  btn.disabled = false; btn.textContent = 'Regenerate';
+}
+</script>
+</body>
+</html>
