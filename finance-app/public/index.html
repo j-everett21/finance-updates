@@ -113,11 +113,11 @@
   <!-- Submit view -->
   <div id="submit-view">
     <div class="member-grid">
-      <div class="member-card active" onclick="selectMember('jeffrey', this)">
+      <div class="member-card active" onclick="selectMember('Jeff', this)">
         <div class="member-avatar av-j">JG</div>
-        <div class="member-name">Jeffrey</div>
+        <div class="member-name">Jeff</div>
         <div class="member-role">CAO / SVP Finance</div>
-        <div class="submitted-badge" id="badge-jeffrey" style="display:none">✓ Submitted</div>
+        <div class="submitted-badge" id="badge-Jeff" style="display:none">✓ Submitted</div>
       </div>
       <div class="member-card" onclick="selectMember('carter', this)">
         <div class="member-avatar av-c">CA</div>
@@ -144,7 +144,7 @@
           <div class="member-avatar av-j" id="form-avatar" style="width:36px;height:36px;font-size:12px;margin:0">JG</div>
           <div>
             <h2 id="form-title">Monday Top-5 Priorities</h2>
-            <p id="form-sub">Jeffrey Gleason · CAO / SVP Finance</p>
+            <p id="form-sub">Jeff Gleason · CAO / SVP Finance</p>
           </div>
         </div>
       </div>
@@ -220,7 +220,7 @@
       <div style="font-size:12px;color:var(--grey);">Your own updates, most recent first. Last 12 weeks.</div>
     </div>
     <div class="htabs">
-      <button class="htab active" onclick="selectHistoryMember('jeffrey',this)">Jeffrey</button>
+      <button class="htab active" onclick="selectHistoryMember('Jeff',this)">Jeff</button>
       <button class="htab" onclick="selectHistoryMember('carter',this)">Carter</button>
       <button class="htab" onclick="selectHistoryMember('david',this)">David</button>
     </div>
@@ -230,13 +230,13 @@
 </div>
 
 <script>
-let currentMember = 'jeffrey';
+let currentMember = 'Jeff';
 let currentType = 'monday';
 let showingHistory = false;
-let currentHistoryMember = 'jeffrey';
+let currentHistoryMember = 'Jeff';
 
 const members = {
-  jeffrey: { name: 'Jeffrey Gleason', role: 'CAO / SVP Finance', initials: 'JG', av: 'av-j' },
+  Jeff: { name: 'Jeff Gleason', role: 'CAO / SVP Finance', initials: 'JG', av: 'av-j' },
   carter:  { name: 'Carter', role: 'Sr. Financial Analyst — FP&A', initials: 'CA', av: 'av-c' },
   david:   { name: 'David', role: 'Sr. BI Analyst — BI', initials: 'DV', av: 'av-d' },
 };
@@ -388,7 +388,7 @@ function toggleHistoryCard(header) {
 async function checkSubmissions() {
   try {
     const week = getWeekKey();
-    for (const id of ['jeffrey','carter','david']) {
+    for (const id of ['Jeff','carter','david']) {
       for (const type of ['monday','friday']) {
         const res = await fetch(`/api/get?key=${week}_${id}_${type}`);
         const data = await res.json();
