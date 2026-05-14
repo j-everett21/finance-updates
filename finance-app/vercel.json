@@ -1,6 +1,0 @@
-{
-  "rewrites": [
-    { "source": "/cfo", "destination": "/cfo.html" },
-    { "source": "/api/(.*)", "destination": "/api/$1" }
-  ]
-}
