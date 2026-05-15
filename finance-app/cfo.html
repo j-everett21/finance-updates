@@ -50,6 +50,12 @@
   .pill { font-size: 11px; padding: 3px 8px; border-radius: 20px; font-weight: 500; }
   .pill-done { background: var(--green-light); color: var(--green); }
   .pill-pending { background: var(--grey-light); color: var(--grey); }
+  .pill-reviewed { background: #EDE7F6; color: #4527A0; }
+  .reviewed-banner { display:flex; align-items:center; gap:8px; background:#EDE7F6; border:1px solid #B39DDB; border-radius:var(--radius); padding:10px 14px; font-size:13px; font-weight:600; color:#4527A0; margin-top:0; }
+  .review-btn { background:var(--navy); color:white; border:none; padding:8px 18px; border-radius:var(--radius); font-size:12px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:6px; transition:background 0.15s; }
+  .review-btn:hover { background:var(--slate); }
+  .review-btn.unreview { background:var(--grey); }
+  .review-btn.unreview:hover { background:#455A64; }
   .avatar-sm { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; }
   .av-j { background: #D6E4F0; color: #1B2A4A; }
   .av-c { background: #E8F5E9; color: #1B5E20; }
@@ -158,7 +164,7 @@
 <script>
 const CFO_PASSWORD = '296F';
 const members = {
-  jeff: { name: 'jeff Gleason', role: 'CAO — Accounting', initials: 'JG', av: 'av-j' },
+  jeffrey: { name: 'Jeff Gleason', role: 'CAO — Accounting', initials: 'JG', av: 'av-j' },
   carter:  { name: 'Carter',          role: 'Sr. Financial Analyst — FP&A',    initials: 'CA', av: 'av-c' },
   david:   { name: 'David',           role: 'Sr. BI Analyst — Business Intelligence', initials: 'DV', av: 'av-d' },
 };
@@ -209,7 +215,7 @@ async function loadWeek() {
   document.getElementById('week-label-dash').textContent = getWeekLabel(weekOffset);
   allData = {};
   const week = getWeekKey(weekOffset);
-  for (const id of ['jeff','carter','david']) {
+  for (const id of ['jeffrey','carter','david']) {
     for (const type of ['monday','friday']) {
       try {
         const res = await fetch(`/api/get?key=${week}_${id}_${type}`);
@@ -222,6 +228,12 @@ async function loadWeek() {
       const res = await fetch(`/api/get?key=notes_${week}_${id}`);
       const data = await res.json();
       if (data.value) allData[`notes_${id}`] = data.value;
+    } catch(e) {}
+    // Load reviewed state
+    try {
+      const rrev = await fetch(`/api/get?key=reviewed_${week}_${id}`);
+      const drev = await rrev.json();
+      if (drev.value === '1') allData[`reviewed_${id}`] = true;
     } catch(e) {}
   }
   renderStatusBar();
@@ -243,6 +255,7 @@ function renderStatusBar() {
         <div class="status-pills">
           <span class="pill ${hasMon ? 'pill-done' : 'pill-pending'}">${hasMon ? '✓ Mon submitted' : '○ Mon pending'}</span>
           <span class="pill ${hasFri ? 'pill-done' : 'pill-pending'}">${hasFri ? '✓ Fri submitted' : '○ Fri pending'}</span>
+          <span class="pill ${allData['reviewed_'+id] ? 'pill-reviewed' : ''}" style="${allData['reviewed_'+id] ? '' : 'display:none'}" id="status-reviewed-${id}">🔒 Reviewed</span>
         </div>
       </div>`;
   }
@@ -272,11 +285,12 @@ function renderSubmissions() {
     let friHTML = '';
     if (friData) {
       const fields = [
-        ['Accomplished this week', friData.accomplished, false],
-        ['Blocked / at risk', friData.blocked, true],
-        ['Carrying into next week', friData.carryover, false],
-        ['Ask for Joel', friData.ask, true],
-        ['Cross-team heads-up', friData.crossteam, false],
+        ['This week's progress', friData.accomplished, false],
+        ['Where could you use support', friData.blocked, true],
+        ['Looking ahead', friData.carryover, false],
+        ['Asks', friData.ask, true],
+        ['Cross-team', friData.crossteam, false],
+        ['Team pulse', friData.teampulse, false],
       ];
       friHTML = fields.filter(([,v]) => v).map(([label, val, isRed]) =>
         `<div class="sub-section"><div class="sub-section-title">${label}</div><div class="${isRed ? 'highlight-red' : 'sub-content'}">${val}</div></div>`
@@ -307,9 +321,15 @@ function renderSubmissions() {
           <div id="subcontent-${id}-friday" style="display:none">${friHTML}</div>
         </div>
         <div class="notes-section">
-          <div class="notes-label">Joel's notes</div>
+          <div id="reviewed-banner-${id}" class="reviewed-banner" style="${allData['reviewed_'+id] ? '' : 'display:none'}">🔒 Reviewed</div>
+          <div class="notes-label" style="margin-top:${allData['reviewed_'+id] ? '10px' : '0'}">Joel's notes</div>
           <textarea id="notes-${id}" placeholder="Add your notes, reactions, or follow-up items here..." onblur="saveNotes('${id}','${week}')">${notes}</textarea>
           <div class="notes-save" id="notes-saved-${id}">✓ Saved</div>
+          <div style="margin-top:10px">
+            <button id="review-btn-${id}" class="review-btn ${allData['reviewed_'+id] ? 'unreview' : ''}" onclick="toggleReviewed('${id}','${week}')">
+              ${allData['reviewed_'+id] ? '🔓 Mark as unreviewed' : '🔒 Mark as reviewed'}
+            </button>
+          </div>
         </div>
       </div>`;
   }
@@ -336,6 +356,37 @@ async function saveNotes(personId, week) {
     saved.style.display = 'block';
     setTimeout(() => saved.style.display = 'none', 2000);
   } catch(e) {}
+}
+
+async function toggleReviewed(personId, week) {
+  const isReviewed = !!allData[`reviewed_${personId}`];
+  const newState = !isReviewed;
+  allData[`reviewed_${personId}`] = newState;
+
+  try {
+    await fetch('/api/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ _isNote: true, key: `reviewed_${week}_${personId}`, value: newState ? '1' : '' })
+    });
+  } catch(e) {}
+
+  // Update banner
+  const banner = document.getElementById(`reviewed-banner-${personId}`);
+  const btn = document.getElementById(`review-btn-${personId}`);
+  const statusPill = document.getElementById(`status-reviewed-${personId}`);
+
+  if (newState) {
+    banner.style.display = 'flex';
+    btn.textContent = '🔓 Mark as unreviewed';
+    btn.classList.add('unreview');
+    if (statusPill) { statusPill.style.display = 'inline-flex'; }
+  } else {
+    banner.style.display = 'none';
+    btn.textContent = '🔒 Mark as reviewed';
+    btn.classList.remove('unreview');
+    if (statusPill) { statusPill.style.display = 'none'; }
+  }
 }
 
 async function generateSummary() {

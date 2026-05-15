@@ -86,6 +86,9 @@
   .empty-history { text-align: center; padding: 3rem 1rem; color: var(--grey); font-size: 13px; font-style: italic; }
   .chevron { color: rgba(255,255,255,0.6); font-size: 12px; transition: transform 0.2s; display: inline-block; }
   .chevron.open { transform: rotate(180deg); }
+  .lock-banner { display:flex; align-items:center; gap:8px; background:#EDE7F6; border:1px solid #B39DDB; border-radius:var(--radius); padding:10px 14px; font-size:13px; font-weight:600; color:#4527A0; margin-bottom:1rem; }
+  .locked-overlay { pointer-events:none; opacity:0.6; }
+  .submit-btn.locked { background:var(--border); cursor:not-allowed; }
   .htabs { display: flex; gap: 8px; margin-bottom: 1.25rem; flex-wrap: wrap; }
   .htab { padding: 7px 16px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 12px; font-weight: 500; background: white; cursor: pointer; color: var(--grey); transition: all 0.15s; }
   .htab.active { background: var(--navy); color: white; border-color: var(--navy); }
@@ -113,11 +116,11 @@
   <!-- Submit view -->
   <div id="submit-view">
     <div class="member-grid">
-      <div class="member-card active" onclick="selectMember('Jeff', this)">
+      <div class="member-card active" onclick="selectMember('jeffrey', this)">
         <div class="member-avatar av-j">JG</div>
         <div class="member-name">Jeff</div>
         <div class="member-role">CAO</div>
-        <div class="submitted-badge" id="badge-Jeff" style="display:none">✓ Submitted</div>
+        <div class="submitted-badge" id="badge-jeffrey" style="display:none">✓ Submitted</div>
       </div>
       <div class="member-card" onclick="selectMember('carter', this)">
         <div class="member-avatar av-c">CA</div>
@@ -148,6 +151,7 @@
           </div>
         </div>
       </div>
+      <div id="lock-banner" class="lock-banner" style="display:none;margin:1rem 1.25rem 0;">🔒 Reviewed by Joel — reach out if you need to make changes.</div>
       <div class="form-body">
 
         <!-- Monday form -->
@@ -220,7 +224,7 @@
       <div style="font-size:12px;color:var(--grey);">Your own updates, most recent first. Last 12 weeks.</div>
     </div>
     <div class="htabs">
-      <button class="htab active" onclick="selectHistoryMember('Jeff',this)">Jeff</button>
+      <button class="htab active" onclick="selectHistoryMember('jeffrey',this)">Jeff</button>
       <button class="htab" onclick="selectHistoryMember('carter',this)">Carter</button>
       <button class="htab" onclick="selectHistoryMember('david',this)">David</button>
     </div>
@@ -230,13 +234,13 @@
 </div>
 
 <script>
-let currentMember = 'Jeff';
+let currentMember = 'jeffrey';
 let currentType = 'monday';
 let showingHistory = false;
-let currentHistoryMember = 'Jeff';
+let currentHistoryMember = 'jeffrey';
 
 const members = {
-  Jeff: { name: 'Jeff Gleason', role: 'CAO', initials: 'JG', av: 'av-j' },
+  jeffrey: { name: 'Jeff Gleason', role: 'CAO', initials: 'JG', av: 'av-j' },
   carter:  { name: 'Carter', role: 'Sr. Financial Analyst — FP&A', initials: 'CA', av: 'av-c' },
   david:   { name: 'David', role: 'Sr. BI Analyst — BI', initials: 'DV', av: 'av-d' },
 };
@@ -270,6 +274,7 @@ function selectMember(id, el) {
   av.style.cssText = 'width:36px;height:36px;font-size:12px;margin:0';
   document.getElementById('form-sub').textContent = `${m.name} · ${m.role}`;
   clearForm();
+  applyLockState();
 }
 
 function selectType(type, el) {
@@ -385,20 +390,48 @@ function toggleHistoryCard(header) {
   chevron.classList.toggle('open');
 }
 
+let reviewedState = {};
+
 async function checkSubmissions() {
   try {
     const week = getWeekKey();
-    for (const id of ['Jeff','carter','david']) {
+    for (const id of ['jeffrey','carter','david']) {
       for (const type of ['monday','friday']) {
         const res = await fetch(`/api/get?key=${week}_${id}_${type}`);
         const data = await res.json();
         if (data.value) document.getElementById(`badge-${id}`).style.display = 'inline-flex';
       }
+      // Check reviewed state
+      try {
+        const rr = await fetch(`/api/get?key=reviewed_${week}_${id}`);
+        const dr = await rr.json();
+        if (dr.value === '1') reviewedState[id] = true;
+      } catch(e) {}
     }
   } catch(e) {}
 }
 
+function applyLockState() {
+  const isLocked = !!reviewedState[currentMember];
+  const formBody = document.querySelector('.form-body');
+  const btn = document.getElementById('submit-btn');
+  const lockBanner = document.getElementById('lock-banner');
+
+  if (isLocked) {
+    formBody.classList.add('locked-overlay');
+    btn.classList.add('locked');
+    btn.disabled = true;
+    if (lockBanner) lockBanner.style.display = 'flex';
+  } else {
+    formBody.classList.remove('locked-overlay');
+    btn.classList.remove('locked');
+    btn.disabled = false;
+    if (lockBanner) lockBanner.style.display = 'none';
+  }
+}
+
 async function submitUpdate() {
+  if (reviewedState[currentMember]) return;
   const btn = document.getElementById('submit-btn');
   btn.disabled = true;
   btn.textContent = 'Submitting...';
@@ -451,7 +484,7 @@ function showError(msg) {
   el.textContent = msg; el.style.display = 'block';
 }
 
-checkSubmissions();
+checkSubmissions().then(() => applyLockState());
 </script>
 </body>
 </html>
