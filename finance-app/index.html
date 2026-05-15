@@ -25,7 +25,7 @@
   .history-toggle-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.8); padding: 5px 12px; border-radius: var(--radius); font-size: 12px; cursor: pointer; transition: all 0.15s; }
   .history-toggle-btn:hover, .history-toggle-btn.active { background: rgba(255,255,255,0.2); color: white; }
   .container { max-width: 720px; margin: 0 auto; padding: 2rem 1rem; }
-  .member-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 1.5rem; }
+  .member-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 1.5rem; }
   .member-card { background: white; border: 1.5px solid var(--border); border-radius: var(--radius-lg); padding: 1rem; cursor: pointer; transition: all 0.15s; text-align: center; }
   .member-card:hover { border-color: var(--blue); }
   .member-card.active { border-color: var(--navy); background: var(--pale-blue); }
@@ -33,6 +33,7 @@
   .av-j { background: #D6E4F0; color: #1B2A4A; }
   .av-c { background: #E8F5E9; color: #1B5E20; }
   .av-d { background: #EDE7F6; color: #4527A0; }
+  .av-jo { background: #FDF3DC; color: #633806; }
   .member-name { font-size: 13px; font-weight: 600; color: var(--charcoal); }
   .member-role { font-size: 11px; color: var(--grey); margin-top: 2px; }
   .submitted-badge { display: inline-flex; align-items: center; gap: 3px; margin-top: 6px; font-size: 10px; color: var(--green); background: var(--green-light); border-radius: 20px; padding: 2px 8px; }
@@ -134,6 +135,12 @@
         <div class="member-role">Sr. BI Analyst</div>
         <div class="submitted-badge" id="badge-david" style="display:none">✓ Submitted</div>
       </div>
+      <div class="member-card" onclick="selectMember('joel', this)">
+        <div class="member-avatar av-jo">JE</div>
+        <div class="member-name">Joel</div>
+        <div class="member-role">CFO</div>
+        <div class="submitted-badge" id="badge-joel" style="display:none">✓ Submitted</div>
+      </div>
     </div>
 
     <div class="type-toggle">
@@ -227,6 +234,7 @@
       <button class="htab active" onclick="selectHistoryMember('jeffrey',this)">Jeff</button>
       <button class="htab" onclick="selectHistoryMember('carter',this)">Carter</button>
       <button class="htab" onclick="selectHistoryMember('david',this)">David</button>
+      <button class="htab" onclick="selectHistoryMember('joel',this)">Joel</button>
     </div>
     <div id="history-content"></div>
   </div>
@@ -243,6 +251,7 @@ const members = {
   jeffrey: { name: 'Jeff Gleason', role: 'CAO', initials: 'JG', av: 'av-j' },
   carter:  { name: 'Carter', role: 'Sr. Financial Analyst — FP&A', initials: 'CA', av: 'av-c' },
   david:   { name: 'David', role: 'Sr. BI Analyst — BI', initials: 'DV', av: 'av-d' },
+  joel:    { name: 'Joel', role: 'CFO', initials: 'JE', av: 'av-jo' },
 };
 
 function getWeekLabel(offset = 0) {
@@ -395,7 +404,7 @@ let reviewedState = {};
 async function checkSubmissions() {
   try {
     const week = getWeekKey();
-    for (const id of ['jeffrey','carter','david']) {
+    for (const id of ['jeffrey','carter','david','joel']) {
       for (const type of ['monday','friday']) {
         const res = await fetch(`/api/get?key=${week}_${id}_${type}`);
         const data = await res.json();

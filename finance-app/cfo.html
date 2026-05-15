@@ -43,7 +43,7 @@
 
   /* Dashboard */
   .container { max-width: 900px; margin: 0 auto; padding: 1.5rem 1rem; }
-  .status-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 1.5rem; }
+  .status-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 1.5rem; }
   .status-card { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1rem 1.25rem; }
   .status-name { font-size: 13px; font-weight: 600; color: var(--navy); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
   .status-pills { display: flex; gap: 6px; flex-wrap: wrap; }
@@ -60,6 +60,7 @@
   .av-j { background: #D6E4F0; color: #1B2A4A; }
   .av-c { background: #E8F5E9; color: #1B5E20; }
   .av-d { background: #EDE7F6; color: #4527A0; }
+  .av-jo { background: #FDF3DC; color: #633806; }
 
   /* AI Summary */
   .ai-section { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); margin-bottom: 1.5rem; overflow: hidden; }
@@ -111,11 +112,35 @@
     <div class="login-logo">L</div>
     <div class="login-title">CFO Dashboard</div>
     <div class="login-sub">Landing Finance — Weekly Updates</div>
-    <input type="password" id="pw-input" placeholder="Enter your password" onkeydown="if(event.key==='Enter')login()">
-    <button class="login-btn" onclick="login()">Sign In</button>
-    <div class="login-error" id="login-error">Incorrect password. Try again.</div>
+    <input type="password" id="pw-input" placeholder="Enter your password">
+    <button class="login-btn" id="login-btn">Sign In</button>
+    <div class="login-error" id="login-error" style="display:none">Incorrect password. Try again.</div>
   </div>
 </div>
+
+<script>
+// Self-contained login — runs before anything else
+(function() {
+  function attemptLogin() {
+    var pw = document.getElementById('pw-input').value;
+    if (pw === '296F') {
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+      if (typeof loadWeek === 'function') loadWeek();
+    } else {
+      var err = document.getElementById('login-error');
+      err.style.display = 'block';
+      err.textContent = 'Incorrect password. Try again.';
+    }
+  }
+  window.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('login-btn').addEventListener('click', attemptLogin);
+    document.getElementById('pw-input').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') attemptLogin();
+    });
+  });
+})();
+</script>
 
 <!-- Dashboard -->
 <div id="dashboard" style="display:none">
@@ -192,14 +217,7 @@ function getWeekLabel(offset = 0) {
 }
 
 function login() {
-  const pw = document.getElementById('pw-input').value;
-  if (pw === CFO_PASSWORD) {
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('dashboard').style.display = 'block';
-    loadWeek();
-  } else {
-    document.getElementById('login-error').style.display = 'block';
-  }
+  // handled by self-contained login block above
 }
 
 function changeWeek(dir) {
@@ -215,7 +233,7 @@ async function loadWeek() {
   document.getElementById('week-label-dash').textContent = getWeekLabel(weekOffset);
   allData = {};
   const week = getWeekKey(weekOffset);
-  for (const id of ['jeffrey','carter','david']) {
+  for (const id of ['jeffrey','carter','david','joel']) {
     for (const type of ['monday','friday']) {
       try {
         const res = await fetch(`/api/get?key=${week}_${id}_${type}`);
