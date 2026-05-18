@@ -1,8 +1,0 @@
-{
-  "name": "finance-updates",
-  "version": "1.0.0",
-  "description": "Landing Finance weekly updates app",
-  "dependencies": {
-    "redis": "^4.6.13"
-  }
-}
