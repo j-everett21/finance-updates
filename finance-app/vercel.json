@@ -1,0 +1,14 @@
+{
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store, no-cache, must-revalidate" }
+      ]
+    }
+  ],
+  "rewrites": [
+    { "source": "/cfo", "destination": "/dashboard.html" },
+    { "source": "/api/(.*)", "destination": "/api/$1" }
+  ]
+}
