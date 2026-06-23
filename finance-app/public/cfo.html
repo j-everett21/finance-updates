@@ -192,6 +192,7 @@ const members = {
   jeffrey: { name: 'Jeff Gleason', role: 'CAO — Accounting', initials: 'JG', av: 'av-j' },
   carter:  { name: 'Carter',          role: 'Sr. Financial Analyst — FP&A',    initials: 'CA', av: 'av-c' },
   david:   { name: 'David',           role: 'Sr. BI Analyst — Business Intelligence', initials: 'DV', av: 'av-d' },
+  josh:    { name: 'Josh Lawson',      role: 'VP, FP&A',                          initials: 'JL', av: 'av-jo' },
 };
 
 let weekOffset = 0;
@@ -233,7 +234,7 @@ async function loadWeek() {
   document.getElementById('week-label-dash').textContent = getWeekLabel(weekOffset);
   allData = {};
   const week = getWeekKey(weekOffset);
-  for (const id of ['jeffrey','carter','david','joel']) {
+  for (const id of ['jeffrey','carter','david','josh']) {
     for (const type of ['monday','friday']) {
       try {
         const res = await fetch(`/api/get?key=${week}_${id}_${type}`);
@@ -303,12 +304,12 @@ function renderSubmissions() {
     let friHTML = '';
     if (friData) {
       const fields = [
-        ["This week's progress", friData.accomplished, false],
-        ['Where could you use support', friData.blocked, true],
-        ['Looking ahead', friData.carryover, false],
-        ['Asks', friData.ask, true],
-        ['Cross-team', friData.crossteam, false],
-        ['Team pulse', friData.teampulse, false],
+        [`This week's progress`, friData.accomplished, false],
+        [`Where could you use support`, friData.blocked, true],
+        [`Looking ahead`, friData.carryover, false],
+        [`Asks`, friData.ask, true],
+        [`Cross-team`, friData.crossteam, false],
+        [`Team pulse`, friData.teampulse, false],
       ];
       friHTML = fields.filter(([,v]) => v).map(([label, val, isRed]) =>
         `<div class="sub-section"><div class="sub-section-title">${label}</div><div class="${isRed ? 'highlight-red' : 'sub-content'}">${val}</div></div>`
@@ -340,7 +341,7 @@ function renderSubmissions() {
         </div>
         <div class="notes-section">
           <div id="reviewed-banner-${id}" class="reviewed-banner" style="${allData['reviewed_'+id] ? '' : 'display:none'}">🔒 Reviewed</div>
-          <div class="notes-label" style="margin-top:${allData['reviewed_'+id] ? '10px' : '0'}">Joel's notes</div>
+          <div class="notes-label" style="margin-top:${allData['reviewed_'+id] ? '10px' : '0'}">Joel&#39;s notes</div>
           <textarea id="notes-${id}" placeholder="Add your notes, reactions, or follow-up items here..." onblur="saveNotes('${id}','${week}')">${notes}</textarea>
           <div class="notes-save" id="notes-saved-${id}">✓ Saved</div>
           <div style="margin-top:10px">
