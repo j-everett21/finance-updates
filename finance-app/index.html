@@ -135,11 +135,11 @@
         <div class="member-role">Sr. BI Analyst</div>
         <div class="submitted-badge" id="badge-david" style="display:none">✓ Submitted</div>
       </div>
-      <div class="member-card" onclick="selectMember('joel', this)">
-        <div class="member-avatar av-jo">JE</div>
-        <div class="member-name">Joel</div>
-        <div class="member-role">CFO</div>
-        <div class="submitted-badge" id="badge-joel" style="display:none">✓ Submitted</div>
+      <div class="member-card" onclick="selectMember('josh', this)">
+        <div class="member-avatar av-jo">JL</div>
+        <div class="member-name">Josh</div>
+        <div class="member-role">VP, FP&A</div>
+        <div class="submitted-badge" id="badge-josh" style="display:none">✓ Submitted</div>
       </div>
     </div>
 
@@ -234,7 +234,7 @@
       <button class="htab active" onclick="selectHistoryMember('jeffrey',this)">Jeff</button>
       <button class="htab" onclick="selectHistoryMember('carter',this)">Carter</button>
       <button class="htab" onclick="selectHistoryMember('david',this)">David</button>
-      <button class="htab" onclick="selectHistoryMember('joel',this)">Joel</button>
+      <button class="htab" onclick="selectHistoryMember('josh',this)">Josh</button>
     </div>
     <div id="history-content"></div>
   </div>
@@ -251,7 +251,7 @@ const members = {
   jeffrey: { name: 'Jeff Gleason', role: 'CAO', initials: 'JG', av: 'av-j' },
   carter:  { name: 'Carter', role: 'Sr. Financial Analyst — FP&A', initials: 'CA', av: 'av-c' },
   david:   { name: 'David', role: 'Sr. BI Analyst — BI', initials: 'DV', av: 'av-d' },
-  joel:    { name: 'Joel', role: 'CFO', initials: 'JE', av: 'av-jo' },
+  josh:    { name: 'Josh Lawson', role: 'VP, FP&A', initials: 'JL', av: 'av-jo' },
 };
 
 function getWeekLabel(offset = 0) {
@@ -404,7 +404,7 @@ let reviewedState = {};
 async function checkSubmissions() {
   try {
     const week = getWeekKey();
-    for (const id of ['jeffrey','carter','david','joel']) {
+    for (const id of ['jeffrey','carter','david','josh']) {
       for (const type of ['monday','friday']) {
         const res = await fetch(`/api/get?key=${week}_${id}_${type}`);
         const data = await res.json();
